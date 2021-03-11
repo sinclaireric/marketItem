@@ -1,6 +1,7 @@
-import React,{useState} from 'react';
+import React,{useState,useContext} from 'react';
 import axios,{AxiosResponse} from "axios";
 import {URL} from "../urlapi";
+import  {AppCtx} from '../App';
 
 export interface offerAction {
     offer: string;
@@ -17,7 +18,10 @@ export interface Addprops {
     const [title,setTitle] = useState<string>();
     const [price,setPrice] = useState<number>();
      const [loading,setLoading] = useState<boolean> (false)
+     const [loadingImg,setLoadingImg] = useState<boolean> (false)
+
      const [image,setImage] = useState<string | null>();
+     const { addOffer } = useContext(AppCtx);
 
 
      const changeTitle = (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -46,12 +50,12 @@ export interface Addprops {
              body: formData,
          };
 
-         setLoading(true)
+         setLoadingImg(true)
          return fetch('https://api.cloudinary.com/v1_1/dbxswktcp/image/upload', options)
              .then(res => res.json())
              .then(res => {
                      setImage(res.secure_url)
-                 setLoading(false)
+                 setLoadingImg(false)
              })
              .catch(err => setLoading(false));
 
@@ -65,18 +69,19 @@ export interface Addprops {
 
 
 
-     const addOffer = async (): Promise<offerAction> => {
+     const addOfferForm = async (): Promise<offerAction> => {
 
 
          try {
              setLoading(true)
-             const result:AxiosResponse<offerAction> = await axios.post(URL + '/api/offers',
+             const result:AxiosResponse = await axios.post(URL + '/api/offers',
                  {title,price,image}
              )
              setLoading(false)
 
              props.hide()
 
+             addOffer(result.data)
              return result.data;
 
 
@@ -92,11 +97,15 @@ export interface Addprops {
 
         <form className={"addform"} >
 
-            {loading ?
+            {loadingImg ?
 
                 <h4 style={{width:'100%',textAlign:'center',marginTop:150}}>Envoi de l'image ...</h4>
 
                 :
+                loading ?
+                    <h4 style={{width:'100%',textAlign:'center',marginTop:150}}>Envoi de l'offre ...</h4>
+
+                    :
 
                 <>
                     <div className={"img"}>
@@ -110,7 +119,7 @@ export interface Addprops {
                     <input placeholder={"titre"} value={title} onChange={changeTitle} />
                     <input placeholder={"prix"}  value={price} onChange={changePrice} />
 
-                    <button onClick={addOffer}> Ajouter une offre </button>
+                    <button onClick={addOfferForm}> Ajouter une offre </button>
 
                 </>
 

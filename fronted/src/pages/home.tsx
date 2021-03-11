@@ -1,10 +1,10 @@
-import React, {useState,useEffect} from 'react';
+import React, {useState,useEffect,useContext} from 'react';
 import Card from '../components/card';
 import useModal from "../components/modal/modalhook";
 import Modal from "../components/modal/modal";
 import axios from "axios";
 import AddOffer from './addoffer';
-
+import  {AppCtx} from '../App';
 import {URL} from "../urlapi";
 interface Offer {
 
@@ -17,11 +17,11 @@ interface Offer {
  const Home: React.FC = () =>  {
 
 
-     const [offers,setOffers] = useState<Offer[] | null > ([])
      const [loading,setLoading] = useState<boolean> (false)
 
      const { isShowing, toggle } = useModal();
 
+     const { offers,addOffers } = useContext(AppCtx);
 
 
 
@@ -32,7 +32,7 @@ interface Offer {
          const result = await axios.get(URL+'/api/offers', {
          })
 
-         setOffers(result.data);
+         addOffers(result.data);
          setLoading(false)
      };
 

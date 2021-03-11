@@ -1,7 +1,12 @@
-import React, {useState} from 'react';
+import React, {useState,useContext} from 'react';
 import cog from  '../images/cog.png';
 import deleteicon from  '../images/delete.png';
 import edit from  '../images/edit.png';
+import {AxiosResponse} from "axios";
+import axios from "axios";
+import {URL} from "../urlapi";
+import  {AppCtx} from '../App';
+
 
 
 
@@ -18,12 +23,38 @@ interface Props {
 const Card: React.FC<Props> = (props) =>  {
 
   const [show,setShow] = useState<any>({})
-   const toggleAction = (id:number) => {
+    const [loading,setLoading] = useState<boolean> (false)
+    const { deleteOffers } = useContext(AppCtx);
+
+    const toggleAction = (id:number) => {
         setShow((prev:any) => ({
             ...prev,
             [id]: !prev[id]
         }));
     };
+
+
+
+      const deletecard = async (id:number): Promise<any> => {
+
+
+          try {
+              setLoading(true)
+              const result:AxiosResponse<any> = await axios.delete(URL + '/api/offers',{data:{id}}
+              )
+
+              deleteOffers(id)
+              setShow({})
+              setLoading(false)
+
+              return result.data;
+
+          } catch(e) {
+              setLoading(false)
+              return e;
+          }
+
+      }
 
 
 
@@ -62,7 +93,7 @@ const Card: React.FC<Props> = (props) =>  {
                 <span role="button" className={"flex"}> <img src={edit} height={16} width={16}  /> Modifier  </span>
 
 
-                <span role="button" className={"flex"}> <img src={deleteicon} height={16} width={16}  /> Supprimer définitivement </span>
+                <span role="button" className={"flex"} onClick={() => deletecard(props.pos)}> <img src={deleteicon} height={16} width={16}  /> Supprimer définitivement </span>
 
             </div>
 :
